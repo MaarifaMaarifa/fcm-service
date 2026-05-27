@@ -1,9 +1,8 @@
-use std::{error::Error, fs, io, path::PathBuf};
+use std::error::Error;
 
 use gcp_auth::{CustomServiceAccount, TokenProvider};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
 mod domain;
 
 pub use domain::{
@@ -18,14 +17,42 @@ pub struct FcmPayload {
 }
 
 pub struct FcmService {
-    pub credential_file: String,
+    client: Client,
+    custom_service_account: CustomServiceAccount,
+    firebase_notification_endpoint: String,
 }
 
 impl FcmService {
-    pub fn new(credential_file: impl Into<String>) -> Self {
-        Self {
-            credential_file: credential_file.into(),
+    pub async fn new(
+        credential_file_path: impl AsRef<std::path::Path>,
+    ) -> Result<Self, Box<dyn Error>> {
+        let credential_file_content = tokio::fs::read_to_string(credential_file_path).await?;
+
+        Ok(Self {
+            client: Client::new(),
+            custom_service_account: CustomServiceAccount::from_json(&credential_file_content)?,
+            firebase_notification_endpoint: Self::construct_firebase_notification_endpoint(
+                &credential_file_content,
+            )?,
+        })
+    }
+
+    /// Constructs the Firebase Cloud Messaging (FCM) HTTP v1 endpoint
+    /// using the `project_id` found in a Firebase service account credential file.
+    fn construct_firebase_notification_endpoint(
+        credential_file_content: &str,
+    ) -> Result<String, serde_json::Error> {
+        #[derive(Deserialize)]
+        struct FirebaseCredentials<'a> {
+            project_id: &'a str,
         }
+
+        let credentials: FirebaseCredentials = serde_json::from_str(credential_file_content)?;
+
+        Ok(format!(
+            "https://fcm.googleapis.com/v1/projects/{}/messages:send",
+            credentials.project_id
+        ))
     }
 }
 
@@ -55,18 +82,6 @@ impl FcmService {
 /// }
 /// ```
 impl FcmService {
-    /// Extracts the project ID from the service account credential file.
-    fn get_project_id(&self) -> Result<String, Box<dyn Error>> {
-        let content = fs::read_to_string(&self.credential_file)?;
-        let json: Value = serde_json::from_str(&content)?;
-
-        json.get("project_id")
-            .and_then(|v| v.as_str())
-            .map(std::string::ToString::to_string)
-            .ok_or_else(|| {
-                io::Error::new(io::ErrorKind::InvalidData, "project_id not found").into()
-            })
-    }
     /// Sends an FCM notification asynchronously.
     ///
     /// # Errors
@@ -76,19 +91,14 @@ impl FcmService {
     /// - The HTTP request to FCM fails
     /// - The FCM API returns an unsuccessful status
     pub async fn send_notification(&self, message: FcmMessage) -> Result<(), Box<dyn Error>> {
-        let project_id = self.get_project_id()?;
-        let client = Client::new();
-        let credentials_path = PathBuf::from(&self.credential_file);
-        // let service_account = CustomServiceAccount::from_file(credentials_path)?;
-        let service_account = CustomServiceAccount::from_file(credentials_path)?;
         let scopes = &["https://www.googleapis.com/auth/firebase.messaging"];
-        let token = service_account.token(scopes).await?;
-        let url = format!("https://fcm.googleapis.com/v1/projects/{project_id}/messages:send");
+        let token = self.custom_service_account.token(scopes).await?;
 
         let payload = FcmPayload { message };
 
-        let response = client
-            .post(&url)
+        let response = self
+            .client
+            .post(&self.firebase_notification_endpoint)
             .bearer_auth(token.as_str())
             .json(&payload)
             .send()
@@ -104,59 +114,54 @@ impl FcmService {
         }
     }
 }
+
 #[cfg(test)]
 mod tests {
-    use std::{fs::File, io::Write};
-
-    use tempfile;
-
     use super::*;
 
-    fn setup_dummy_credentials(temp_dir: &tempfile::TempDir) -> String {
-        let credential_path = temp_dir.path().join("service-account.json");
-        let mut file = File::create(&credential_path).unwrap();
-        writeln!(
-            file,
-            r#"{{"project_id": "test-project", "client_email": "test@example.com"}}"#
-        )
-        .unwrap();
-        credential_path.to_str().unwrap().to_string()
+    #[test]
+    fn test_construct_firebase_notification_endpoint_success() {
+        let json = r#"{
+            "project_id": "test-project"
+        }"#;
+
+        let endpoint = FcmService::construct_firebase_notification_endpoint(json).unwrap();
+
+        assert_eq!(
+            endpoint,
+            "https://fcm.googleapis.com/v1/projects/test-project/messages:send"
+        );
     }
 
     #[test]
-    fn test_new_service() {
-        let service = FcmService::new("dummy.json");
-        assert_eq!(service.credential_file, "dummy.json");
-    }
+    fn test_construct_firebase_notification_endpoint_missing_project_id() {
+        let json = r#"{
+            "client_email": "test@example.com"
+        }"#;
 
-    #[test]
-    fn test_get_project_id_success() {
-        let temp_dir = tempfile::tempdir().unwrap();
-        let credential_file = setup_dummy_credentials(&temp_dir);
-        let service = FcmService::new(credential_file);
-        let project_id = service.get_project_id().unwrap();
-        assert_eq!(project_id, "test-project");
-    }
+        let result = FcmService::construct_firebase_notification_endpoint(json);
 
-    #[test]
-    fn test_get_project_id_missing_file() {
-        let service = FcmService::new("nonexistent.json");
-        let result = service.get_project_id();
         assert!(result.is_err());
-        assert!(matches!(
-            result.unwrap_err().downcast_ref::<io::Error>(),
-            Some(err) if err.kind() == io::ErrorKind::NotFound
-        ));
     }
 
     #[test]
-    fn test_get_project_id_invalid_json() {
-        let temp_dir = tempfile::tempdir().unwrap();
-        let credential_path = temp_dir.path().join("service-account.json");
-        let mut file = File::create(&credential_path).unwrap();
-        writeln!(file, "invalid json").unwrap();
-        let service = FcmService::new(credential_path.to_str().unwrap());
-        let result = service.get_project_id();
+    fn test_construct_firebase_notification_endpoint_invalid_json() {
+        let result = FcmService::construct_firebase_notification_endpoint("invalid json");
+
         assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_construct_firebase_notification_endpoint_empty_project_id() {
+        let json = r#"{
+            "project_id": ""
+        }"#;
+
+        let endpoint = FcmService::construct_firebase_notification_endpoint(json).unwrap();
+
+        assert_eq!(
+            endpoint,
+            "https://fcm.googleapis.com/v1/projects//messages:send"
+        );
     }
 }
