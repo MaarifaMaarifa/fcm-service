@@ -67,7 +67,7 @@ impl FcmService {
 ///
 /// #[tokio::main]
 /// async fn main() -> Result<(), Box<dyn std::error::Error>> {
-///     let service = FcmService::new("path/to/service-account.json");
+///     let service = FcmService::new("path/to/service-account.json").await?;
 ///
 ///     let mut message = FcmMessage::new();
 ///     let mut notification = FcmNotification::new();
