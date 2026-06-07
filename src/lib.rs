@@ -86,7 +86,6 @@ impl FcmService {
     ///
     /// # Errors
     /// Returns an error if:
-    /// - The credential file cannot be read or parsed
     /// - Authentication with GCP fails
     /// - The HTTP request to FCM fails
     /// - The FCM API returns an unsuccessful status
