@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::RandomState};
+use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
@@ -21,12 +21,12 @@ impl WebpushConfig {
     }
 
     #[must_use]
-    pub fn headers(&self) -> Option<&HashMap<String, String, RandomState>> {
+    pub fn headers(&self) -> Option<&HashMap<String, String>> {
         self.headers.as_ref()
     }
 
     #[must_use]
-    pub fn data(&self) -> Option<&HashMap<String, String, RandomState>> {
+    pub fn data(&self) -> Option<&HashMap<String, String>> {
         self.data.as_ref()
     }
 

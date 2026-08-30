@@ -49,6 +49,10 @@ impl FcmService {
 
         let credentials: FirebaseCredentials = serde_json::from_str(credential_file_content)?;
 
+        if credentials.project_id.is_empty() {
+            return Err(serde::de::Error::custom("project_id must not be empty"));
+        }
+
         Ok(format!(
             "https://fcm.googleapis.com/v1/projects/{}/messages:send",
             credentials.project_id
@@ -156,11 +160,8 @@ mod tests {
             "project_id": ""
         }"#;
 
-        let endpoint = FcmService::construct_firebase_notification_endpoint(json).unwrap();
+        let result = FcmService::construct_firebase_notification_endpoint(json);
 
-        assert_eq!(
-            endpoint,
-            "https://fcm.googleapis.com/v1/projects//messages:send"
-        );
+        assert!(result.is_err());
     }
 }

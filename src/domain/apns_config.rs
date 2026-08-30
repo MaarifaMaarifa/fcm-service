@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::RandomState};
+use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -22,12 +22,12 @@ impl ApnsConfig {
     }
 
     #[must_use]
-    pub fn headers(&self) -> Option<&HashMap<String, String, RandomState>> {
+    pub fn headers(&self) -> Option<&HashMap<String, String>> {
         self.headers.as_ref()
     }
 
     #[must_use]
-    pub fn payload(&self) -> Option<&HashMap<String, Value, RandomState>> {
+    pub fn payload(&self) -> Option<&HashMap<String, Value>> {
         self.payload.as_ref()
     }
 

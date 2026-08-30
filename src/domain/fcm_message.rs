@@ -1,4 +1,4 @@
-use std::{collections::HashMap, hash::RandomState};
+use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 
@@ -81,7 +81,7 @@ impl FcmMessage {
     }
 
     #[must_use]
-    pub fn data(&self) -> Option<&HashMap<String, String, RandomState>> {
+    pub fn data(&self) -> Option<&HashMap<String, String>> {
         self.data.as_ref()
     }
 
