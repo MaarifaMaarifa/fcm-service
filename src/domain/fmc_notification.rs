@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// Represents the notification content of an FCM message.
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct FcmNotification {
     title: String,
     body: String,

@@ -7,6 +7,7 @@ use super::{
 };
 use crate::domain::android_config::proxy::Proxy;
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct AndroidNotification {
     title: Option<String>,
     body: Option<String>,

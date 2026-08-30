@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 
 /// Configuration for web push notifications.
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct WebpushConfig {
     headers: Option<HashMap<String, String>>,
     data: Option<HashMap<String, String>>,

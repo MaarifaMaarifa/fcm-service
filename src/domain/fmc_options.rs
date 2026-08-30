@@ -2,6 +2,7 @@ use serde::{Deserialize, Serialize};
 
 /// Additional FCM options.
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct FcmOptions {
     analytics_label: Option<String>,
 }

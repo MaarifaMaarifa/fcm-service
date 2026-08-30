@@ -35,6 +35,7 @@ where
 }
 
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct LightSettings {
     pub color: Color,
     pub light_on_duration: Option<String>,

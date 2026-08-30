@@ -23,6 +23,7 @@ pub enum Priority {
 
 /// Configuration for Android devices.
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct AndroidConfig {
     collapse_key: Option<String>,
     priority: Option<Priority>,

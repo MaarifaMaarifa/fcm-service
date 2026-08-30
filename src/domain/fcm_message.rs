@@ -6,6 +6,7 @@ use super::{AndroidConfig, ApnsConfig, FcmNotification, FcmOptions, Target, Webp
 
 /// Represents an FCM message with all supported fields.
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
 pub struct FcmMessage {
     name: Option<String>,
     data: Option<HashMap<String, String>>,
