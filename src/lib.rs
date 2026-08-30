@@ -1,9 +1,12 @@
-use std::error::Error;
+use std::{error::Error, time::Duration};
 
 use gcp_auth::{CustomServiceAccount, TokenProvider};
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 mod domain;
+
+/// Default timeout applied to every HTTP request made to the FCM API.
+const REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
 
 pub use domain::{
     AndroidConfig, AndroidNotification, ApnsConfig, Color, FcmMessage, FcmNotification, FcmOptions,
@@ -29,7 +32,7 @@ impl FcmService {
         let credential_file_content = tokio::fs::read_to_string(credential_file_path).await?;
 
         Ok(Self {
-            client: Client::new(),
+            client: Client::builder().timeout(REQUEST_TIMEOUT).build()?,
             custom_service_account: CustomServiceAccount::from_json(&credential_file_content)?,
             firebase_notification_endpoint: Self::construct_firebase_notification_endpoint(
                 &credential_file_content,
