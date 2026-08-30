@@ -43,7 +43,7 @@ use fcm_service::{FcmService, FcmMessage, FcmNotification, Target};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let service = FcmService::new("path/to/service-account.json");
+    let service = FcmService::new("path/to/service-account.json").await?;
 
     let mut message = FcmMessage::new();
     let mut notification = FcmNotification::new();
@@ -70,30 +70,12 @@ To ensure everything is working correctly, run:
 cargo test
 ```
 
-### Example Test Cases
-
-```rust
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use std::fs::File;
-    use std::io::Write;
-    use tempfile;
-
-    #[test]
-    fn test_new_service() {
-        let service = FcmService::new("dummy.json");
-        assert_eq!(service.credential_file, "dummy.json");
-    }
-}
-```
-
 ## Package Information
 
 ```toml
 [package]
 name = "fcm-service"
-version = "0.1.0"
+version = "0.2.3"
 edition = "2021"
 description = "A Rust library for sending Firebase Cloud Messaging (FCM) notifications"
 license = "MIT"
@@ -107,15 +89,16 @@ categories = ["api-bindings", "network-programming"]
 
 ```toml
 [dependencies]
-reqwest = { version = "0.11", features = ["json"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
-tokio = { version = "1.0", features = ["macros"] }
-gcp_auth = "0.12.3"
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "^1", features = ["derive"] }
+serde_json = "^1"
+tokio = { version = "^1", features = ["macros"] }
+gcp_auth = "0.12"
+chrono = "0.4.41"
 
 [dev-dependencies]
-tokio = { version = "1.0", features = ["full"] }
-tempfile = "3.10"
+tokio = { version = "1", features = ["full"] }
+tempfile = "^3"
 ```
 
 ## Author
