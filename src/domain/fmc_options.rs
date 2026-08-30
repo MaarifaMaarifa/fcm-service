@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct FcmOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
     analytics_label: Option<String>,
 }
 

@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 pub struct FcmNotification {
     title: String,
     body: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
     image: Option<String>,
 }
 

@@ -25,12 +25,19 @@ pub enum Priority {
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct AndroidConfig {
+    #[serde(skip_serializing_if = "Option::is_none")]
     collapse_key: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     priority: Option<Priority>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     ttl: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     restricted_package_name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     notification: Option<AndroidNotification>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     fcm_options: Option<FcmOptions>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     direct_boot_ok: Option<bool>,
 }
 

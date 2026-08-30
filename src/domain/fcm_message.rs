@@ -8,12 +8,19 @@ use super::{AndroidConfig, ApnsConfig, FcmNotification, FcmOptions, Target, Webp
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct FcmMessage {
+    #[serde(skip_serializing_if = "Option::is_none")]
     name: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     data: Option<HashMap<String, String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     notification: Option<FcmNotification>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     android: Option<AndroidConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     webpush: Option<WebpushConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     apns: Option<ApnsConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     fcm_options: Option<FcmOptions>,
     #[serde(flatten)]
     target: Target,

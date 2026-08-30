@@ -9,32 +9,59 @@ use crate::domain::android_config::proxy::Proxy;
 #[derive(Serialize, Deserialize, Default, Clone, Debug)]
 #[serde(rename_all = "camelCase")]
 pub struct AndroidNotification {
+    #[serde(skip_serializing_if = "Option::is_none")]
     title: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     body: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     icon: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     color: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     sound: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     tag: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     click_action: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     body_loc_key: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     body_loc_args: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     title_loc_key: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     title_loc_args: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     channel_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     ticker: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     sticky: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     event_time: Option<DateTime<Utc>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     local_only: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     notification_priority: Option<NotificationPriority>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     default_sound: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     default_light_settings: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     default_vibrate_timings: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     vibrate_timings: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     visibility: Option<Visibility>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     notification_count: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     light_settings: Option<LightSettings>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     image: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     bypass_proxy_notification: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     proxy: Option<Proxy>,
 }
 

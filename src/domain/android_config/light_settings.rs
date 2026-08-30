@@ -38,6 +38,8 @@ where
 #[serde(rename_all = "camelCase")]
 pub struct LightSettings {
     pub color: Color,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub light_on_duration: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub light_off_duration: Option<String>,
 }

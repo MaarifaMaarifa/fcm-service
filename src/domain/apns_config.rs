@@ -7,7 +7,9 @@ use serde_json::Value;
 #[derive(Clone, Debug, Serialize, Deserialize, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct ApnsConfig {
+    #[serde(skip_serializing_if = "Option::is_none")]
     headers: Option<HashMap<String, String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     payload: Option<HashMap<String, serde_json::Value>>,
 }
 
